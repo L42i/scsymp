@@ -1,0 +1,19 @@
+---
+- name: Clone GitHub repository and run additional commands
+  hosts: nodes
+  become: yes  # Use 'become' if you need root privileges
+  tasks:
+    - name: Clone the repository
+      shell: |
+        cd Desktop && git clone "https://github.com/bontric/p2psc"
+
+    - name: make p2psc
+      shell: |
+        cd Desktop && cd p2psc && sudo python -m pip install . --break-system-packages
+
+    - name: move directory into supercollider extensions
+      shell: |
+        sudo mv /home/student/Desktop/p2psc/libs/sclang/* /home/student/.local/share/SuperCollider/Extensions
+
+
+        
