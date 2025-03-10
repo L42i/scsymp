@@ -10,3 +10,8 @@ scide filename.scd
 -J [neighbors name] -K [yourname]
 
 nohup jacktrip -D -C {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].ansible_host }} -J {{ groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length] }} -K {{ inventory_hostname }}  > jacktripConnect_log.txt 2>&1 &
+
+
+
+IN CASE REPO ERROR:
+sudo chown -R $(whoami) .
