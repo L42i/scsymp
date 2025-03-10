@@ -1,0 +1,71 @@
+---
+- name: mesh
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: killAll
+      shell: |
+        killall -9 qjackctl
+        killall -9 jacktrip
+        killall -9 sclang
+        killall -9 scsynth
+        killall -9 aj-snapshot  
+        killall -9 jackd
+        killall -9 scide
+      register: ps
+      async: 2592000
+      poll: 0
+
+    - name: Copy start super collider
+      copy:
+        src: ./ringControl.scd
+        dest: /home/student
+        mode: '0755'
+      
+    - name: start jackd
+      shell: |
+        jackd -P 95 -a a -d alsa -d hw:Gen -r 48000 -p 128 -n 2  &
+        sleep 3
+      register: ps
+      async: 2592000
+      poll: 0
+
+    - name: start jacktrip
+      shell: |
+        jacktrip -S &
+        sleep 3
+      register: ps
+      async: 2592000
+      poll: 0
+
+    - name: connect clients
+      shell: |
+        nohup jacktrip -D -C {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].ansible_host }} -J {{ groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length] }} -K {{ inventory_hostname }}  > jacktripConnect_log.txt 2>&1 &
+      register: ps
+      async: 2592000
+      poll: 0
+
+    - name: run sc script
+      shell: |
+        export DISPLAY=:0.0
+        sclang ringControl.scd
+      register: ps
+      async: 2592000
+      poll: 0
+
+
+    - name: print
+      debug:
+        msg: | 
+         jacktrip -C {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].ansible_host }} -J {{ groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length] }} -K {{ inventory_hostname }} 
+
+
+        
+         
+      
+
+
+  
+    
+  vars:
+    base_port: 4464

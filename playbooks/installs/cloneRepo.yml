@@ -1,0 +1,11 @@
+---
+- name: Clone GitHub repository and run additional commands
+  hosts: nodes
+  become: yes  # Use 'become' if you need root privileges
+  tasks:
+    - name: Clone the repository
+      shell: |
+        cd Desktop && git clone "https://github.com/L42i/scsymp"
+
+
+        

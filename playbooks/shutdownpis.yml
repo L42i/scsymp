@@ -1,0 +1,10 @@
+---
+- name: Reboot all Raspberry Pi hosts
+  hosts: nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Shut down hosts
+      community.general.shutdown:
+  

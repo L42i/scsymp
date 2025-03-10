@@ -1,0 +1,68 @@
+---
+- name: Start fully connected Jacktrip Mesh
+  hosts: nodes
+  gather_facts: false
+  tasks:
+  # Kill any existing processes related to the mesh
+  - name: Kill all SuperCollider things
+    command: killall -9 sclang scsynth
+    ignore_errors: true
+  - name: Kill all JackTrip things
+    command: killall -9 jacktrip
+    ignore_errors: true
+  - name: Kill all qjacks
+    command: killall -9 qjackctl
+    ignore_errors: true
+  - name: Kill all jackd things
+    command: killall -9 jackd
+    ignore_errors: true
+
+  # Launch JACK stuff
+  - name: Launch jackd
+    shell: jackd -P 95 -a a -d alsa -d hw:Gen -r 48000 -p 128 -n 2
+    async: 2592000 # run for 1 month
+    poll: 0
+  - name: Launch JackTrip Servers
+    shell: jacktrip -S
+    async: 2592000 # run for 1 month
+    poll: 0
+
+  - name: Launch JackTrip Clients
+    # Connect to the item being iterated in the loop as a client
+    shell: jacktrip -n 1 -C {{ hostvars[item]['ansible_host'] }} -K {{ inventory_hostname }} -J {{ item }} -B {{ base_port + index }}
+    async: 2592000 # run for 1 month
+    poll: 0
+    # Loop over N-index-1 access points to connect them in mesh configuration
+    loop: "{{ groups['nodes'][groups['nodes'].index(inventory_hostname)+1:] }}"
+    loop_control:
+      index_var: index
+
+  # Launch SuperCollider stuff
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/student/remote/
+      state: directory
+      owner: student
+      group: student
+      mode: '0755'
+    async: 2592000
+    poll: 0
+
+  - name: Copy file with owner and permissions
+    ansible.builtin.copy:
+      src: RTGrainz.scd
+      dest: /home/student/remote/RTGrainz.scd
+      owner: student
+      group: student
+      mode: '0644' 
+      
+
+  - name: run sc script
+    shell: |
+      export DISPLAY=:0.0
+      sclang /home/student/remote/RTGrainz.scd
+    async: 2592000
+    poll: 0
+
+  vars:
+    base_port: 4464

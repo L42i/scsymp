@@ -1,0 +1,12 @@
+jackd -P 95 -a a -d alsa -d hw:Gen -r 48000 -p 128 -n 2  &
+jacktrip -S &
+jacktrip -C [ip address to connect to] -n 1
+qjackctl
+scide filename.scd
+    s.boot;
+    open qjackctl, receive from lhs to sc in and then sc out to send from rhs
+    build passthrough node
+
+-J [neighbors name] -K [yourname]
+
+nohup jacktrip -D -C {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].ansible_host }} -J {{ groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length] }} -K {{ inventory_hostname }}  > jacktripConnect_log.txt 2>&1 &

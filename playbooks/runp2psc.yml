@@ -1,0 +1,15 @@
+---
+- name: Clone GitHub repository and run additional commands
+  hosts: nodes
+  become: yes  # Use 'become' if you need root privileges
+  tasks:
+    - name: killall p2psc
+      shell: |
+        killall p2psc
+
+    - name: run p2psc
+      shell: |
+        p2psc
+      register: ps
+      async: 2592000
+      poll: 0

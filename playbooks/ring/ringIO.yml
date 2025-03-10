@@ -1,0 +1,21 @@
+---
+- name: mesh
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: connect Ring I/O's
+      shell: |
+        jack_connect SuperCollider:out_1 system:playback_1
+        jack_connect {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) - 1) % groups['nodes'] | length]].inventory_hostname }}:receive_1 SuperCollider:in_1
+        jack_connect SuperCollider:out_1 {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].inventory_hostname }}:send_1
+      register: ps
+      async: 2592000
+      poll: 0
+
+    - name: print
+      debug:
+        msg: | 
+          lhs: {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) - 1) % groups['nodes'] | length]].inventory_hostname }} middle: {{ inventory_hostname }} rhs: {{ hostvars[groups['nodes'][(groups['nodes'].index(inventory_hostname) + 1) % groups['nodes'] | length]].inventory_hostname }}
+    
+  vars:
+    base_port: 4464

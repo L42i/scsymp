@@ -1,0 +1,40 @@
+---
+- name: Start fully connected Jacktrip Mesh
+  hosts: nodes
+  gather_facts: false
+
+  tasks:
+
+    - name: "Connect Physical inputs"
+      shell: |
+        jack_connect system:capture_1 SuperCollider:in_1
+        jack_connect system:capture_2 SuperCollider:in_1
+        jack_connect SuperCollider:out_1 lights:in_1
+        jack_connect SuperCollider:out_2 system:playback_1
+
+#        jack_connect system:capture_2 SuperCollider:in_{{groups['nodes'].index(inventory_hostname) +1}}
+
+    - name: "Connect JackTrip ins"
+      shell: jack_connect SuperCollider:out_{{index+1}} {{item}}:send_1 
+      loop: "{{ groups['nodes'] }}"
+      loop_control:
+        index_var: index
+      when: "{{index != groups['nodes'].index(inventory_hostname)}}"
+
+    - name: "Connect JackTrip outs"
+      shell: jack_connect {{item}}:receive_1 system:playback_1
+      loop: "{{ groups['nodes'] }}"
+      loop_control:
+        index_var: index
+      when: "{{index != groups['nodes'].index(inventory_hostname)}}"
+        
+    - name: "Connect JackTrip more"
+      shell: jack_connect {{item}}:receive_1 SuperCollider:in_2
+      loop: "{{ groups['nodes'] }}"
+      loop_control:
+        index_var: index
+      when: "{{index != groups['nodes'].index(inventory_hostname)}}"
+ 
+
+  vars:
+    base_port: 4464
