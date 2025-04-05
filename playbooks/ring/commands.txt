@@ -1,0 +1,2 @@
+ansible-playbook -k -i ../../config/hosts.ini ring.yml
+ansible-playbook -k -i ../../config/hosts.ini ringIO.yml

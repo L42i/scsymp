@@ -1,2 +1,2 @@
 ansible-playbook -k -i ../../config/alhosts.ini rt_grainz.yml
-ansible-playbook -k -i ../../config/alhosts.ini jack_connections.yaml
+ansible-playbook -k -i ../../config/alhosts.ini jack_connections.yml

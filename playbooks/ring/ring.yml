@@ -1,5 +1,5 @@
 ---
-- name: mesh
+- name: ring
   hosts: nodes
   gather_facts: false
   tasks:

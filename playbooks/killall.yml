@@ -1,0 +1,23 @@
+---
+- name: mesh
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: killAll
+      shell: |
+        killall -9 qjackctl
+        killall -9 jacktrip
+        killall -9 sclang
+        killall -9 scsynth
+        killall -9 aj-snapshot  
+        killall -9 jackd
+        killall -9 scide
+      register: ps
+      async: 2592000
+      poll: 0
+        
+         
+  
+    
+  vars:
+    base_port: 4464
